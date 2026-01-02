@@ -38,6 +38,7 @@ const Header = ({
     { id: 'wiki', label: 'Вики', icon: 'BookOpen' },
     { id: 'rules', label: 'Правила', icon: 'ScrollText' },
     { id: 'chat', label: 'Чат', icon: 'MessageSquare' },
+    { id: 'ai-chat', label: 'ПИИ', icon: 'Bot' },
     { id: 'profile', label: 'Профиль', icon: 'User' }
   ];
 

@@ -4,6 +4,7 @@ import WikiSection from './sections/WikiSection';
 import RulesSection from './sections/RulesSection';
 import ChatSection from './sections/ChatSection';
 import ProfileSection from './sections/ProfileSection';
+import AIChatSection from './sections/AIChatSection';
 
 interface MainContentProps {
   activeSection: string;
@@ -17,6 +18,7 @@ const MainContent = ({ activeSection }: MainContentProps) => {
       {activeSection === 'wiki' && <WikiSection />}
       {activeSection === 'rules' && <RulesSection />}
       {activeSection === 'chat' && <ChatSection />}
+      {activeSection === 'ai-chat' && <AIChatSection />}
       {activeSection === 'profile' && <ProfileSection />}
     </div>
   );

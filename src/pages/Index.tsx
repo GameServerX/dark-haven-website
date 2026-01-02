@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import SpaceBackground from '@/components/SpaceBackground';
-import Hero from '@/components/Hero';
+import EditableHero from '@/components/EditableHero';
 import MainContent from '@/components/MainContent';
 import AudioPlayer from '@/components/AudioPlayer';
 import AuthModal from '@/components/AuthModal';
@@ -12,6 +12,7 @@ import ElementEditor from '@/components/ElementEditor';
 import DraggableElement from '@/components/DraggableElement';
 import SidebarMenu from '@/components/SidebarMenu';
 import TabManager from '@/components/TabManager';
+import AIChat from '@/components/AIChat';
 import { PageElement, CustomTab } from '@/types/editor';
 
 const Index = () => {
@@ -187,8 +188,8 @@ const Index = () => {
       />
 
       <main className="relative z-10 min-h-screen page-transition" style={{ paddingTop: '80px' }} key={activeSection}>
-        {activeSection === 'home' && !isEditing && <Hero />}
-        {!isEditing && <MainContent activeSection={activeSection} />}
+        {activeSection === 'home' && <EditableHero isEditing={isEditing} />}
+        {activeSection !== 'home' && <MainContent activeSection={activeSection} />}
         
         {currentElements.map(element => (
           <DraggableElement
@@ -253,6 +254,8 @@ const Index = () => {
         onClose={() => setShowTabManager(false)}
         onCreateTab={handleCreateTab}
       />
+
+      <AIChat />
     </div>
   );
 };

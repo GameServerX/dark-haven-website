@@ -1,13 +1,22 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
 import Icon from '@/components/ui/icon';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+
+interface WikiPage {
+  title: string;
+  content: string;
+  category: string;
+}
 
 const WikiSection = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPage, setSelectedPage] = useState<string | null>(null);
-  const [pageContent, setPageContent] = useState<Record<string, string>>({});
+  const [wikiPages, setWikiPages] = useState<Record<string, WikiPage>>({});
+  const [isEditingPage, setIsEditingPage] = useState(false);
+  const [editedContent, setEditedContent] = useState('');
 
   const wikiCategories = [
     {
@@ -32,42 +41,106 @@ const WikiSection = () => {
     }
   ];
 
+  useEffect(() => {
+    const saved = localStorage.getItem('darkHavenWikiPages');
+    if (saved) {
+      setWikiPages(JSON.parse(saved));
+    } else {
+      const defaultPages: Record<string, WikiPage> = {};
+      wikiCategories.forEach(cat => {
+        cat.items.forEach(item => {
+          defaultPages[item] = {
+            title: item,
+            content: `# ${item}\n\nОписание для ${item}. Здесь будет подробная информация об этой теме.\n\n## Основная информация\n\nДобавьте сюда основную информацию.\n\n## Детали\n\nПодробности и детали.`,
+            category: cat.title
+          };
+        });
+      });
+      setWikiPages(defaultPages);
+    }
+  }, []);
+
   const handleItemClick = (item: string) => {
     setSelectedPage(item);
-    const saved = localStorage.getItem(`darkHavenWiki_${item}`);
-    if (saved) {
-      setPageContent(prev => ({ ...prev, [item]: saved }));
-    } else {
-      setPageContent(prev => ({ 
-        ...prev, 
-        [item]: `# ${item}\n\nЭто страница про ${item}. Содержимое можно редактировать через админ-панель.` 
-      }));
-    }
+    setIsEditingPage(false);
+    setEditedContent(wikiPages[item]?.content || '');
   };
 
-  if (selectedPage) {
+  const handleStartEdit = () => {
+    setIsEditingPage(true);
+    setEditedContent(wikiPages[selectedPage!]?.content || '');
+  };
+
+  const handleSaveEdit = () => {
+    if (!selectedPage) return;
+    
+    const updatedPages = {
+      ...wikiPages,
+      [selectedPage]: {
+        ...wikiPages[selectedPage],
+        content: editedContent
+      }
+    };
+    
+    setWikiPages(updatedPages);
+    localStorage.setItem('darkHavenWikiPages', JSON.stringify(updatedPages));
+    setIsEditingPage(false);
+  };
+
+  if (selectedPage && wikiPages[selectedPage]) {
     return (
       <div className="animate-fade-in">
         <div className="mb-8">
           <Button
             variant="ghost"
             onClick={() => setSelectedPage(null)}
-            className="mb-4"
+            className="mb-4 hover:border-accent transition-all"
           >
             <Icon name="ArrowLeft" size={16} className="mr-2" />
             Назад к категориям
           </Button>
-          <h2 className="text-4xl font-bold glow-cyan mb-2">{selectedPage}</h2>
-          <p className="text-muted-foreground">Информация из вики Dark Haven</p>
+          
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-4xl font-bold glow-cyan mb-2">{wikiPages[selectedPage].title}</h2>
+              <p className="text-muted-foreground">Категория: {wikiPages[selectedPage].category}</p>
+            </div>
+            
+            {!isEditingPage ? (
+              <Button onClick={handleStartEdit} className="hover:border-accent transition-all">
+                <Icon name="Edit" size={16} className="mr-2" />
+                Редактировать
+              </Button>
+            ) : (
+              <div className="flex space-x-2">
+                <Button onClick={handleSaveEdit} variant="default">
+                  <Icon name="Save" size={16} className="mr-2" />
+                  Сохранить
+                </Button>
+                <Button onClick={() => setIsEditingPage(false)} variant="outline">
+                  Отмена
+                </Button>
+              </div>
+            )}
+          </div>
         </div>
 
         <Card className="bg-card/50 border-border backdrop-blur-sm">
           <CardContent className="pt-6">
-            <div className="prose prose-invert max-w-none">
-              <div className="whitespace-pre-wrap text-foreground leading-relaxed">
-                {pageContent[selectedPage] || `Содержимое страницы "${selectedPage}" пока не добавлено.`}
+            {!isEditingPage ? (
+              <div className="prose prose-invert max-w-none">
+                <div className="whitespace-pre-wrap text-foreground leading-relaxed">
+                  {wikiPages[selectedPage].content}
+                </div>
               </div>
-            </div>
+            ) : (
+              <Textarea
+                value={editedContent}
+                onChange={(e) => setEditedContent(e.target.value)}
+                className="min-h-[500px] font-mono"
+                placeholder="Введите содержимое страницы..."
+              />
+            )}
           </CardContent>
         </Card>
       </div>
@@ -108,9 +181,9 @@ const WikiSection = () => {
                   <li 
                     key={idx} 
                     onClick={() => handleItemClick(item)}
-                    className="flex items-center space-x-2 text-muted-foreground hover:text-primary cursor-pointer transition-all hover:translate-x-2"
+                    className="flex items-center space-x-2 text-muted-foreground hover:text-primary cursor-pointer transition-all hover:translate-x-2 group"
                   >
-                    <Icon name="ChevronRight" size={16} />
+                    <Icon name="ChevronRight" size={16} className="group-hover:text-accent" />
                     <span>{item}</span>
                   </li>
                 ))}
