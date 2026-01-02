@@ -168,7 +168,7 @@ const Index = () => {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-background" onClick={handlePageClick}>
-      <SpaceBackground />
+      <SpaceBackground activeSection={activeSection} />
       <AudioPlayer />
       
       <Header 
@@ -186,7 +186,7 @@ const Index = () => {
         onAddTab={isEditing ? () => setShowTabManager(true) : undefined}
       />
 
-      <main className="relative z-10 min-h-screen" style={{ paddingTop: '80px' }}>
+      <main className="relative z-10 min-h-screen page-transition" style={{ paddingTop: '80px' }} key={activeSection}>
         {activeSection === 'home' && !isEditing && <Hero />}
         {!isEditing && <MainContent activeSection={activeSection} />}
         

@@ -10,6 +10,7 @@ interface DraggableElementProps {
 
 const DraggableElement = ({ element, isEditing, onUpdate, onClick }: DraggableElementProps) => {
   const [isDragging, setIsDragging] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const elementRef = useRef<HTMLDivElement>(null);
 
@@ -51,7 +52,29 @@ const DraggableElement = ({ element, isEditing, onUpdate, onClick }: DraggableEl
     };
   }, [isDragging, dragStart, element, onUpdate, isEditing]);
 
+  const getHoverClass = () => {
+    if (isEditing || !element.styles.hoverAnimation) return '';
+    
+    switch (element.styles.hoverAnimation) {
+      case 'scale':
+        return 'hover:scale-110';
+      case 'glow':
+        return 'hover:brightness-125';
+      case 'lift':
+        return 'hover:-translate-y-2';
+      case 'tilt':
+        return 'hover:rotate-2';
+      case 'pulse':
+        return 'hover:animate-pulse';
+      default:
+        return '';
+    }
+  };
+
   const getElementStyle = (): React.CSSProperties => {
+    const hoverScale = isHovered && !isEditing ? (element.styles.hoverScale || 1) : 1;
+    const hoverGlow = isHovered && !isEditing && element.styles.hoverGlow;
+    
     const baseStyle: React.CSSProperties = {
       position: 'absolute',
       left: element.position.x,
@@ -64,9 +87,11 @@ const DraggableElement = ({ element, isEditing, onUpdate, onClick }: DraggableEl
       fontWeight: element.styles.fontWeight,
       borderRadius: element.styles.borderRadius,
       padding: element.styles.padding,
-      cursor: isEditing ? 'move' : 'default',
+      cursor: isEditing ? 'move' : element.type === 'button' ? 'pointer' : 'default',
       border: isEditing ? '2px dashed rgba(0, 217, 255, 0.5)' : 'none',
-      boxShadow: element.styles.glowIntensity 
+      boxShadow: hoverGlow
+        ? `0 0 30px ${element.styles.hoverColor || element.styles.glowColor || '#00d9ff'}`
+        : element.styles.glowIntensity 
         ? `0 0 ${element.styles.glowIntensity}px ${element.styles.glowColor}`
         : 'none',
       backgroundImage: element.styles.backgroundImage 
@@ -74,6 +99,8 @@ const DraggableElement = ({ element, isEditing, onUpdate, onClick }: DraggableEl
         : 'none',
       backgroundSize: 'cover',
       backgroundPosition: 'center',
+      transform: `scale(${hoverScale})`,
+      transition: 'all 0.3s ease',
       zIndex: isDragging ? 1000 : 10
     };
 
@@ -104,9 +131,9 @@ const DraggableElement = ({ element, isEditing, onUpdate, onClick }: DraggableEl
       case 'button':
         return (
           <button
-            className={`w-full h-full flex items-center justify-center font-semibold transition-all ${
+            className={`w-full h-full flex items-center justify-center font-semibold ${
               element.styles.animation ? `animate-${element.styles.animation}` : ''
-            } ${!isEditing ? 'hover:scale-105' : ''}`}
+            }`}
           >
             {element.content || 'Кнопка'}
           </button>
@@ -147,7 +174,9 @@ const DraggableElement = ({ element, isEditing, onUpdate, onClick }: DraggableEl
       style={getElementStyle()}
       onMouseDown={handleMouseDown}
       onClick={handleClick}
-      className="select-none"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className={`select-none ${getHoverClass()}`}
     >
       {renderContent()}
     </div>

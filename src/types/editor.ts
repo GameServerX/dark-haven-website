@@ -14,6 +14,10 @@ export interface PageElement {
     glowColor?: string;
     glowIntensity?: number;
     animation?: string;
+    hoverAnimation?: string;
+    hoverScale?: number;
+    hoverGlow?: boolean;
+    hoverColor?: string;
     backgroundImage?: string;
   };
   link?: string;
@@ -29,9 +33,22 @@ export interface CustomTab {
   isCustom: boolean;
 }
 
+export interface PageBackground {
+  type: 'static' | 'animated' | 'video' | 'parallax';
+  url?: string;
+  parallaxSpeed?: number;
+}
+
 export interface SiteConfig {
   tabs: CustomTab[];
   backgroundType: 'static' | 'animated' | 'video';
   backgroundUrl: string;
   sidebarTabs: CustomTab[];
+  pageBackgrounds: Record<string, PageBackground>;
+}
+
+export interface MusicTrack {
+  id: string;
+  title: string;
+  url: string;
 }

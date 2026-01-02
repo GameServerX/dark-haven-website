@@ -1,10 +1,13 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { useState } from 'react';
 
 const WikiSection = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedPage, setSelectedPage] = useState<string | null>(null);
+  const [pageContent, setPageContent] = useState<Record<string, string>>({});
 
   const wikiCategories = [
     {
@@ -28,6 +31,48 @@ const WikiSection = () => {
       items: ['История станции', 'Фракции', 'Технологии', 'Галактика', 'События']
     }
   ];
+
+  const handleItemClick = (item: string) => {
+    setSelectedPage(item);
+    const saved = localStorage.getItem(`darkHavenWiki_${item}`);
+    if (saved) {
+      setPageContent(prev => ({ ...prev, [item]: saved }));
+    } else {
+      setPageContent(prev => ({ 
+        ...prev, 
+        [item]: `# ${item}\n\nЭто страница про ${item}. Содержимое можно редактировать через админ-панель.` 
+      }));
+    }
+  };
+
+  if (selectedPage) {
+    return (
+      <div className="animate-fade-in">
+        <div className="mb-8">
+          <Button
+            variant="ghost"
+            onClick={() => setSelectedPage(null)}
+            className="mb-4"
+          >
+            <Icon name="ArrowLeft" size={16} className="mr-2" />
+            Назад к категориям
+          </Button>
+          <h2 className="text-4xl font-bold glow-cyan mb-2">{selectedPage}</h2>
+          <p className="text-muted-foreground">Информация из вики Dark Haven</p>
+        </div>
+
+        <Card className="bg-card/50 border-border backdrop-blur-sm">
+          <CardContent className="pt-6">
+            <div className="prose prose-invert max-w-none">
+              <div className="whitespace-pre-wrap text-foreground leading-relaxed">
+                {pageContent[selectedPage] || `Содержимое страницы "${selectedPage}" пока не добавлено.`}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="animate-fade-in">
@@ -60,7 +105,11 @@ const WikiSection = () => {
             <CardContent>
               <ul className="space-y-2">
                 {category.items.map((item, idx) => (
-                  <li key={idx} className="flex items-center space-x-2 text-muted-foreground hover:text-primary cursor-pointer transition-colors">
+                  <li 
+                    key={idx} 
+                    onClick={() => handleItemClick(item)}
+                    className="flex items-center space-x-2 text-muted-foreground hover:text-primary cursor-pointer transition-all hover:translate-x-2"
+                  >
                     <Icon name="ChevronRight" size={16} />
                     <span>{item}</span>
                   </li>
