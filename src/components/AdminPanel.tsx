@@ -13,9 +13,11 @@ import { useToast } from '@/hooks/use-toast';
 interface AdminPanelProps {
   isOpen: boolean;
   onClose: () => void;
+  onToggleEdit: () => void;
+  isEditing: boolean;
 }
 
-const AdminPanel = ({ isOpen, onClose }: AdminPanelProps) => {
+const AdminPanel = ({ isOpen, onClose, onToggleEdit, isEditing }: AdminPanelProps) => {
   const { toast } = useToast();
   const [newNewsTitle, setNewNewsTitle] = useState('');
   const [newNewsContent, setNewNewsContent] = useState('');
@@ -86,6 +88,29 @@ const AdminPanel = ({ isOpen, onClose }: AdminPanelProps) => {
             <span>Административная панель</span>
           </DialogTitle>
         </DialogHeader>
+
+        <div className="mb-6">
+          <Card className="bg-accent/10 border-accent/30">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-semibold mb-1">Прямой редактор</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Включите режим визуального редактирования для добавления элементов на страницы
+                  </p>
+                </div>
+                <Button
+                  onClick={onToggleEdit}
+                  variant={isEditing ? 'default' : 'outline'}
+                  className={isEditing ? 'animate-pulse-glow' : ''}
+                >
+                  <Icon name={isEditing ? 'Eye' : 'Edit'} size={16} className="mr-2" />
+                  {isEditing ? 'Активен' : 'Включить'}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
         <Tabs defaultValue="content" className="w-full">
           <TabsList className="grid w-full grid-cols-3">

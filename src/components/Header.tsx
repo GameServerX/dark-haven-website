@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
+import { CustomTab } from '@/types/editor';
 
 interface HeaderProps {
   activeSection: string;
@@ -9,6 +10,11 @@ interface HeaderProps {
   onLoginClick: () => void;
   onLogout: () => void;
   onAdminClick: () => void;
+  isEditing?: boolean;
+  onToggleEdit?: () => void;
+  onOpenSidebar: () => void;
+  customTabs?: CustomTab[];
+  onAddTab?: () => void;
 }
 
 const Header = ({
@@ -18,7 +24,12 @@ const Header = ({
   user,
   onLoginClick,
   onLogout,
-  onAdminClick
+  onAdminClick,
+  isEditing = false,
+  onToggleEdit,
+  onOpenSidebar,
+  customTabs = [],
+  onAddTab
 }: HeaderProps) => {
   const sections = [
     { id: 'home', label: 'Главная', icon: 'Home' },
@@ -35,11 +46,22 @@ const Header = ({
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
           <div className="flex items-center space-x-4">
-            <div className="text-3xl font-bold glow-cyan">
-              DARK HAVEN
-            </div>
-            <div className="hidden md:block text-sm text-muted-foreground">
-              Space Station 14
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onOpenSidebar}
+              className="hover:bg-primary/10"
+            >
+              <Icon name="Menu" size={24} className="text-primary" />
+            </Button>
+
+            <div className="flex flex-col">
+              <div className="text-3xl font-bold glow-cyan">
+                DARK HAVEN
+              </div>
+              <div className="hidden md:block text-xs text-muted-foreground">
+                Space Station 14
+              </div>
             </div>
           </div>
 
@@ -60,6 +82,34 @@ const Header = ({
                 {section.label}
               </Button>
             ))}
+
+            {customTabs.map(tab => (
+              <Button
+                key={tab.id}
+                variant={activeSection === tab.id ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setActiveSection(tab.id)}
+                className={`relative transition-all duration-300 ${
+                  activeSection === tab.id 
+                    ? 'animate-pulse-glow' 
+                    : 'hover:text-secondary'
+                }`}
+              >
+                <Icon name={tab.icon as any} size={16} className="mr-2" />
+                {tab.name}
+              </Button>
+            ))}
+
+            {isEditing && onAddTab && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onAddTab}
+                className="border-primary hover:bg-primary/10 animate-pulse"
+              >
+                <Icon name="Plus" size={16} />
+              </Button>
+            )}
           </nav>
 
           <div className="flex items-center space-x-2">
@@ -69,17 +119,31 @@ const Header = ({
                   <Icon name="User" size={16} className="text-primary" />
                   <span className="text-sm font-medium">{user?.username}</span>
                 </div>
+                
+                {user?.isAdmin && onToggleEdit && (
+                  <Button
+                    variant={isEditing ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={onToggleEdit}
+                    className={isEditing ? 'border-accent bg-accent text-accent-foreground animate-pulse-glow' : 'border-accent text-accent hover:bg-accent/10'}
+                  >
+                    <Icon name={isEditing ? 'Eye' : 'Edit'} size={16} className="mr-2" />
+                    {isEditing ? 'Редактор' : 'Режим правки'}
+                  </Button>
+                )}
+
                 {user?.isAdmin && (
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={onAdminClick}
-                    className="border-accent text-accent hover:bg-accent/10"
+                    className="border-secondary text-secondary hover:bg-secondary/10"
                   >
                     <Icon name="Settings" size={16} className="mr-2" />
-                    Админ
+                    Панель
                   </Button>
                 )}
+                
                 <Button
                   variant="ghost"
                   size="sm"
