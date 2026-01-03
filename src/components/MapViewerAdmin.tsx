@@ -5,14 +5,18 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import Icon from '@/components/ui/icon';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import MapFileUploader from './MapFileUploader';
 
 interface MapData {
   id: string;
   name: string;
-  url: string;
+  url?: string;
   thumbnail?: string;
   description?: string;
   createdAt: string;
+  type?: 'url' | 'file';
+  fileData?: any;
 }
 
 interface MapViewerAdminProps {
@@ -50,12 +54,13 @@ const MapViewerAdmin = ({ maps, onSave }: MapViewerAdminProps) => {
   };
 
   const handleSave = () => {
-    if (!editingMap || !formData.name || !formData.url) return;
+    if (!editingMap || !formData.name) return;
+    if (editingMap.type !== 'file' && !formData.url) return;
 
     const updatedMap: MapData = {
       ...editingMap,
       name: formData.name,
-      url: formData.url,
+      url: formData.url || undefined,
       description: formData.description || undefined,
       thumbnail: formData.thumbnail || undefined
     };
@@ -68,6 +73,19 @@ const MapViewerAdmin = ({ maps, onSave }: MapViewerAdminProps) => {
     onSave(newMaps);
     setEditingMap(null);
     setFormData({ name: '', url: '', description: '', thumbnail: '' });
+  };
+
+  const handleFileMapUploaded = (uploadedMap: any) => {
+    const newMap: MapData = {
+      id: uploadedMap.id,
+      name: uploadedMap.name,
+      description: 'Загруженный файл карты',
+      createdAt: uploadedMap.uploadedAt,
+      type: 'file',
+      fileData: uploadedMap.data
+    };
+
+    onSave([...maps, newMap]);
   };
 
   const handleDelete = (mapId: string) => {
@@ -173,7 +191,13 @@ const MapViewerAdmin = ({ maps, onSave }: MapViewerAdminProps) => {
             </div>
           </div>
         ) : (
-          <div className="space-y-2">
+          <Tabs defaultValue="list" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 mb-4">
+              <TabsTrigger value="list">Список карт</TabsTrigger>
+              <TabsTrigger value="upload">Загрузить файл</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="list" className="space-y-2">
             {maps.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <p>Карты еще не добавлены</p>
@@ -194,7 +218,14 @@ const MapViewerAdmin = ({ maps, onSave }: MapViewerAdminProps) => {
                       />
                     )}
                     <div>
-                      <h3 className="font-semibold">{map.name}</h3>
+                      <div className="flex items-center space-x-2">
+                        <h3 className="font-semibold">{map.name}</h3>
+                        {map.type === 'file' && (
+                          <span className="px-2 py-0.5 text-xs bg-primary/20 text-primary rounded">
+                            Файл
+                          </span>
+                        )}
+                      </div>
                       {map.description && (
                         <p className="text-sm text-muted-foreground line-clamp-1">
                           {map.description}
@@ -226,7 +257,12 @@ const MapViewerAdmin = ({ maps, onSave }: MapViewerAdminProps) => {
                 </div>
               ))
             )}
-          </div>
+            </TabsContent>
+
+            <TabsContent value="upload">
+              <MapFileUploader onMapUploaded={handleFileMapUploaded} />
+            </TabsContent>
+          </Tabs>
         )}
       </CardContent>
     </Card>

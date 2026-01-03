@@ -3,15 +3,18 @@ import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import MapViewerAdmin from '@/components/MapViewerAdmin';
+import MapCanvas from '@/components/MapCanvas';
 import { fileDB } from '@/lib/fileDB';
 
 interface MapData {
   id: string;
   name: string;
-  url: string;
+  url?: string;
   thumbnail?: string;
   description?: string;
   createdAt: string;
+  type?: 'url' | 'file';
+  fileData?: any;
 }
 
 interface MapViewerProps {
@@ -121,12 +124,23 @@ const MapViewer = ({ isAdmin, onBack }: MapViewerProps) => {
                     </div>
                   )}
                   <div className="relative w-full" style={{ height: 'calc(100vh - 400px)', minHeight: '600px' }}>
-                    <iframe
-                      src={map.url}
-                      className="w-full h-full border-0"
-                      title={`Карта: ${map.name}`}
-                      allow="fullscreen"
-                    />
+                    {map.type === 'file' && map.fileData ? (
+                      <MapCanvas mapData={map.fileData} mapName={map.name} />
+                    ) : map.url ? (
+                      <iframe
+                        src={map.url}
+                        className="w-full h-full border-0"
+                        title={`Карта: ${map.name}`}
+                        allow="fullscreen"
+                      />
+                    ) : (
+                      <div className="flex items-center justify-center h-full text-muted-foreground">
+                        <div className="text-center">
+                          <Icon name="AlertCircle" size={48} className="mx-auto mb-4" />
+                          <p>Ошибка загрузки карты</p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </TabsContent>
               ))}
@@ -143,6 +157,7 @@ const MapViewer = ({ isAdmin, onBack }: MapViewerProps) => {
                 <li>Используйте колесо мыши для масштабирования</li>
                 <li>Зажмите левую кнопку мыши для перемещения по карте</li>
                 <li>Переключайтесь между картами с помощью вкладок сверху</li>
+                <li>Загруженные файлы карт отображаются на встроенном canvas-просмотрщике</li>
               </ul>
             </div>
           </div>
