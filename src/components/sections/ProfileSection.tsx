@@ -34,36 +34,43 @@ const ProfileSection = () => {
   const [stats] = useState({ onlineUsers: 12, totalUsers: 156, dbSize: '2.3 MB', siteSize: '15.7 MB' });
 
   useEffect(() => {
-    const savedUser = localStorage.getItem('darkHavenUser');
-    if (savedUser) {
-      const userData = JSON.parse(savedUser);
-      setUser(userData);
-      setEditedBio(userData.bio || '');
-      setEditedAvatar(userData.avatar || '');
-    }
+    const loadUser = async () => {
+      const { fileDB } = await import('@/lib/fileDB');
+      const savedUser = await fileDB.getUser();
+      if (savedUser) {
+        setUser(savedUser);
+        setEditedBio(savedUser.bio || '');
+        setEditedAvatar(savedUser.avatar || '');
+      }
 
-    const savedUsers = localStorage.getItem('darkHavenAllUsers');
-    if (savedUsers) {
-      setAllUsers(JSON.parse(savedUsers));
-    } else {
-      const defaultUsers = [
-        { username: 'admin', role: 'Администратор', registeredAt: new Date().toISOString(), bio: 'Главный администратор' },
-        { username: 'user1', role: 'Участник', registeredAt: new Date().toISOString() }
-      ];
-      setAllUsers(defaultUsers);
-      localStorage.setItem('darkHavenAllUsers', JSON.stringify(defaultUsers));
-    }
+      const savedUsers = localStorage.getItem('darkHavenAllUsers');
+      if (savedUsers) {
+        setAllUsers(JSON.parse(savedUsers));
+      } else {
+        const defaultUsers = [
+          { username: 'admin', role: 'Администратор', registeredAt: new Date().toISOString(), bio: 'Главный администратор' },
+          { username: 'user1', role: 'Участник', registeredAt: new Date().toISOString() }
+        ];
+        setAllUsers(defaultUsers);
+        localStorage.setItem('darkHavenAllUsers', JSON.stringify(defaultUsers));
+      }
+    };
+    loadUser();
   }, []);
 
-  const handleSaveProfile = () => {
+  const handleSaveProfile = async () => {
     if (!user) return;
     const updated = { ...user, bio: editedBio, avatar: editedAvatar };
     setUser(updated);
+    const { fileDB } = await import('@/lib/fileDB');
+    await fileDB.setUser(updated);
     localStorage.setItem('darkHavenUser', JSON.stringify(updated));
     setIsEditing(false);
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    const { fileDB } = await import('@/lib/fileDB');
+    await fileDB.setUser(null);
     localStorage.removeItem('darkHavenUser');
     setUser(null);
   };
