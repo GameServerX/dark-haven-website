@@ -16,6 +16,8 @@ import AIChat from '@/components/AIChat';
 import LogoEditor from '@/components/LogoEditor';
 import { PageElement, CustomTab } from '@/types/editor';
 import { localDB } from '@/lib/localDB';
+import { fileDB } from '@/lib/fileDB';
+import DatabaseExport from '@/components/DatabaseExport';
 
 const Index = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -35,31 +37,35 @@ const Index = () => {
   const [pageHeights, setPageHeights] = useState<Record<string, number>>({});
 
   useEffect(() => {
-    const savedUser = localDB.getUser();
-    if (savedUser) {
-      setUser(savedUser);
-      setIsAuthenticated(true);
-    }
+    const loadData = async () => {
+      const savedUser = await fileDB.getUser();
+      if (savedUser) {
+        setUser(savedUser);
+        setIsAuthenticated(true);
+      }
 
-    const savedElements = localDB.getElements();
-    if (savedElements) {
-      setElements(savedElements as Record<string, PageElement[]>);
-    }
+      const savedElements = await fileDB.getElements();
+      if (savedElements) {
+        setElements(savedElements as Record<string, PageElement[]>);
+      }
 
-    const savedCustomTabs = localDB.getCustomTabs();
-    if (savedCustomTabs) {
-      setCustomTabs(savedCustomTabs);
-    }
+      const savedCustomTabs = await fileDB.getCustomTabs();
+      if (savedCustomTabs) {
+        setCustomTabs(savedCustomTabs);
+      }
 
-    const savedSidebarTabs = localDB.getSidebarTabs();
-    if (savedSidebarTabs) {
-      setSidebarTabs(savedSidebarTabs);
-    }
+      const savedSidebarTabs = await fileDB.getSidebarTabs();
+      if (savedSidebarTabs) {
+        setSidebarTabs(savedSidebarTabs);
+      }
 
-    const savedPageHeights = localDB.getPageHeights();
-    if (savedPageHeights) {
-      setPageHeights(savedPageHeights);
-    }
+      const savedPageHeights = await fileDB.getPageHeights();
+      if (savedPageHeights) {
+        setPageHeights(savedPageHeights);
+      }
+    };
+
+    loadData();
   }, []);
 
   const handleAuthSuccess = (username: string, isAdmin: boolean) => {
@@ -67,15 +73,17 @@ const Index = () => {
     setShowCaptcha(true);
   };
 
-  const handleCaptchaSuccess = () => {
+  const handleCaptchaSuccess = async () => {
     const userData = { username: user?.username || 'Guest', isAdmin: user?.isAdmin || false };
+    await fileDB.setUser(userData);
     localDB.setUser(userData);
     setIsAuthenticated(true);
     setShowCaptcha(false);
     setShowAuth(false);
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await fileDB.setUser(null);
     localDB.setUser(null);
     setUser(null);
     setIsAuthenticated(false);
@@ -142,7 +150,9 @@ const Index = () => {
     setSelectedElement(null);
   };
 
-  const handleSaveElements = () => {
+  const handleSaveElements = async () => {
+    await fileDB.updateAllElements(elements);
+    await fileDB.updateAllPageHeights(pageHeights);
     localDB.updateAllElements(elements);
     localDB.updateAllPageHeights(pageHeights);
   };
@@ -156,7 +166,7 @@ const Index = () => {
 
   const currentPageHeight = pageHeights[activeSection] || 100;
 
-  const handleCreateTab = (name: string, icon: string, location: 'header' | 'sidebar') => {
+  const handleCreateTab = async (name: string, icon: string, location: 'header' | 'sidebar') => {
     const newTab: CustomTab = {
       id: `custom-${Date.now()}`,
       name,
@@ -168,23 +178,27 @@ const Index = () => {
     if (location === 'header') {
       const updated = [...customTabs, newTab];
       setCustomTabs(updated);
-      localStorage.setItem('darkHavenCustomTabs', JSON.stringify(updated));
+      await fileDB.setCustomTabs(updated);
+      localDB.setCustomTabs(updated);
     } else {
       const updated = [...sidebarTabs, newTab];
       setSidebarTabs(updated);
-      localStorage.setItem('darkHavenSidebarTabs', JSON.stringify(updated));
+      await fileDB.setSidebarTabs(updated);
+      localDB.setSidebarTabs(updated);
     }
   };
 
-  const handleDeleteTab = (tabId: string) => {
+  const handleDeleteTab = async (tabId: string) => {
     const updatedCustomTabs = customTabs.filter(tab => tab.id !== tabId);
     const updatedSidebarTabs = sidebarTabs.filter(tab => tab.id !== tabId);
     
     setCustomTabs(updatedCustomTabs);
     setSidebarTabs(updatedSidebarTabs);
     
-    localStorage.setItem('darkHavenCustomTabs', JSON.stringify(updatedCustomTabs));
-    localStorage.setItem('darkHavenSidebarTabs', JSON.stringify(updatedSidebarTabs));
+    await fileDB.setCustomTabs(updatedCustomTabs);
+    await fileDB.setSidebarTabs(updatedSidebarTabs);
+    localDB.setCustomTabs(updatedCustomTabs);
+    localDB.setSidebarTabs(updatedSidebarTabs);
     
     if (activeSection === tabId) {
       setActiveSection('home');
@@ -249,12 +263,15 @@ const Index = () => {
       />
 
       {user?.isAdmin && (
-        <AdminPanel 
-          isOpen={showAdmin}
-          onClose={() => setShowAdmin(false)}
-          onToggleEdit={handleToggleEdit}
-          isEditing={isEditing}
-        />
+        <>
+          <AdminPanel 
+            isOpen={showAdmin}
+            onClose={() => setShowAdmin(false)}
+            onToggleEdit={handleToggleEdit}
+            isEditing={isEditing}
+          />
+          <DatabaseExport isAdmin={true} />
+        </>
       )}
 
       {isEditing && (
