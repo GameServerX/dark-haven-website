@@ -15,6 +15,7 @@ interface HeaderProps {
   onOpenSidebar: () => void;
   customTabs?: CustomTab[];
   onAddTab?: () => void;
+  onDeleteTab?: (tabId: string) => void;
 }
 
 const Header = ({
@@ -29,7 +30,8 @@ const Header = ({
   onToggleEdit,
   onOpenSidebar,
   customTabs = [],
-  onAddTab
+  onAddTab,
+  onDeleteTab
 }: HeaderProps) => {
   const sections = [
     { id: 'home', label: 'Главная', icon: 'Home' },
@@ -38,7 +40,6 @@ const Header = ({
     { id: 'wiki', label: 'Вики', icon: 'BookOpen' },
     { id: 'rules', label: 'Правила', icon: 'ScrollText' },
     { id: 'chat', label: 'Чат', icon: 'MessageSquare' },
-    { id: 'ai-chat', label: 'ПИИ', icon: 'Bot' },
     { id: 'profile', label: 'Профиль', icon: 'User' }
   ];
 
@@ -85,20 +86,29 @@ const Header = ({
             ))}
 
             {customTabs.map(tab => (
-              <Button
-                key={tab.id}
-                variant={activeSection === tab.id ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setActiveSection(tab.id)}
-                className={`relative transition-all duration-300 ${
-                  activeSection === tab.id 
-                    ? 'animate-pulse-glow' 
-                    : 'hover:text-secondary'
-                }`}
-              >
-                <Icon name={tab.icon as any} size={16} className="mr-2" />
-                {tab.name}
-              </Button>
+              <div key={tab.id} className="relative group inline-flex">
+                <Button
+                  variant={activeSection === tab.id ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setActiveSection(tab.id)}
+                  className={`transition-all duration-300 ${
+                    activeSection === tab.id 
+                      ? 'animate-pulse-glow' 
+                      : 'hover:text-secondary'
+                  }`}
+                >
+                  <Icon name={tab.icon as any} size={16} className="mr-2" />
+                  {tab.name}
+                </Button>
+                {isEditing && onDeleteTab && (
+                  <button
+                    onClick={() => onDeleteTab(tab.id)}
+                    className="absolute -top-1 -right-1 w-5 h-5 bg-destructive rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center hover:scale-110"
+                  >
+                    <Icon name="X" size={12} className="text-white" />
+                  </button>
+                )}
+              </div>
             ))}
 
             {isEditing && onAddTab && (

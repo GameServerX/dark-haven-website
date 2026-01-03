@@ -10,9 +10,10 @@ interface SidebarMenuProps {
   onSelectTab: (tabId: string) => void;
   isEditing: boolean;
   onAddTab: () => void;
+  onDeleteTab: (tabId: string) => void;
 }
 
-const SidebarMenu = ({ isOpen, onClose, onSelectTab, isEditing, onAddTab }: SidebarMenuProps) => {
+const SidebarMenu = ({ isOpen, onClose, onSelectTab, isEditing, onAddTab, onDeleteTab }: SidebarMenuProps) => {
   const [sidebarTabs, setSidebarTabs] = useState<CustomTab[]>([]);
 
   useEffect(() => {
@@ -43,18 +44,29 @@ const SidebarMenu = ({ isOpen, onClose, onSelectTab, isEditing, onAddTab }: Side
             </div>
           ) : (
             sidebarTabs.map(tab => (
-              <Button
-                key={tab.id}
-                variant="ghost"
-                className="w-full justify-start hover:bg-primary/10"
-                onClick={() => {
-                  onSelectTab(tab.id);
-                  onClose();
-                }}
-              >
-                <Icon name={tab.icon as any} size={20} className="mr-3" />
-                {tab.name}
-              </Button>
+              <div key={tab.id} className="flex items-center space-x-2 group">
+                <Button
+                  variant="ghost"
+                  className="flex-1 justify-start hover:bg-primary/10"
+                  onClick={() => {
+                    onSelectTab(tab.id);
+                    onClose();
+                  }}
+                >
+                  <Icon name={tab.icon as any} size={20} className="mr-3" />
+                  {tab.name}
+                </Button>
+                {isEditing && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/20 hover:text-destructive"
+                    onClick={() => onDeleteTab(tab.id)}
+                  >
+                    <Icon name="Trash2" size={16} />
+                  </Button>
+                )}
+              </div>
             ))
           )}
 

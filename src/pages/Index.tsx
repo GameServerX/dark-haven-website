@@ -159,6 +159,21 @@ const Index = () => {
     }
   };
 
+  const handleDeleteTab = (tabId: string) => {
+    const updatedCustomTabs = customTabs.filter(tab => tab.id !== tabId);
+    const updatedSidebarTabs = sidebarTabs.filter(tab => tab.id !== tabId);
+    
+    setCustomTabs(updatedCustomTabs);
+    setSidebarTabs(updatedSidebarTabs);
+    
+    localStorage.setItem('darkHavenCustomTabs', JSON.stringify(updatedCustomTabs));
+    localStorage.setItem('darkHavenSidebarTabs', JSON.stringify(updatedSidebarTabs));
+    
+    if (activeSection === tabId) {
+      setActiveSection('home');
+    }
+  };
+
   const handlePageClick = (e: React.MouseEvent) => {
     if (isEditing && e.target === e.currentTarget) {
       setSelectedElement(null);
@@ -185,6 +200,7 @@ const Index = () => {
         onOpenSidebar={() => setShowSidebar(true)}
         customTabs={customTabs}
         onAddTab={isEditing ? () => setShowTabManager(true) : undefined}
+        onDeleteTab={handleDeleteTab}
       />
 
       <main className="relative z-10 min-h-screen page-transition" style={{ paddingTop: '80px' }} key={activeSection}>
@@ -247,6 +263,7 @@ const Index = () => {
         onSelectTab={setActiveSection}
         isEditing={isEditing}
         onAddTab={() => setShowTabManager(true)}
+        onDeleteTab={handleDeleteTab}
       />
 
       <TabManager
