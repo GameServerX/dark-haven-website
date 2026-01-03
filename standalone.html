@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dark Haven - Локальная версия</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+        }
+        .container {
+            max-width: 600px;
+            background: rgba(255,255,255,0.05);
+            padding: 40px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        h1 {
+            margin: 0 0 20px 0;
+            font-size: 2.5em;
+        }
+        .instructions {
+            background: rgba(0,0,0,0.3);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        .instructions code {
+            background: rgba(255,255,255,0.1);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+        .instructions ol {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        .instructions li {
+            margin: 10px 0;
+        }
+        .warning {
+            background: rgba(255,193,7,0.2);
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        .button {
+            display: inline-block;
+            background: #6366f1;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            text-decoration: none;
+            margin: 10px;
+            transition: all 0.3s;
+        }
+        .button:hover {
+            background: #4f46e5;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Dark Haven</h1>
+        <p>Чтобы запустить сайт локально на вашем ноутбуке:</p>
+        
+        <div class="instructions">
+            <h3>📋 Инструкция:</h3>
+            <ol>
+                <li>Убедитесь, что установлен <code>Node.js</code> (версия 16+)</li>
+                <li>Откройте терминал в папке с проектом</li>
+                <li>Установите зависимости:
+                    <br><code>npm install</code>
+                </li>
+                <li>Запустите локальный сервер:
+                    <br><code>npm run dev</code>
+                </li>
+                <li>Откройте в браузере: <code>http://localhost:5173</code></li>
+            </ol>
+        </div>
+
+        <div class="warning">
+            <strong>⚠️ Важно:</strong> Проект использует React и требует сервера разработки. 
+            Простое открытие HTML файла в браузере не будет работать из-за модульной системы JavaScript.
+        </div>
+
+        <div class="instructions">
+            <h3>🔧 Альтернатива - статический билд:</h3>
+            <ol>
+                <li>Создайте билд: <code>npm run build</code></li>
+                <li>Установите простой HTTP сервер: <code>npm install -g serve</code></li>
+                <li>Запустите билд: <code>serve -s dist -p 3000</code></li>
+                <li>Откройте: <code>http://localhost:3000</code></li>
+            </ol>
+        </div>
+
+        <p style="margin-top: 30px; opacity: 0.7;">
+            После выполнения команд выше сайт будет полностью работать на вашем компьютере
+        </p>
+    </div>
+</body>
+</html>
