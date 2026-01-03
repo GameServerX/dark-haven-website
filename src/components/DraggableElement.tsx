@@ -81,6 +81,7 @@ const DraggableElement = ({ element, isEditing, onUpdate, onClick }: DraggableEl
       top: element.position.y,
       width: element.size.width,
       minHeight: element.size.height,
+      maxWidth: '100%',
       backgroundColor: element.styles.backgroundColor,
       color: element.styles.textColor,
       fontSize: element.styles.fontSize,
@@ -144,7 +145,7 @@ const DraggableElement = ({ element, isEditing, onUpdate, onClick }: DraggableEl
           <img
             src={element.imageUrl || 'https://via.placeholder.com/300'}
             alt={element.content}
-            className={`w-full h-full object-cover ${
+            className={`w-full h-full object-contain ${
               element.styles.animation ? `animate-${element.styles.animation}` : ''
             }`}
             style={{ borderRadius: element.styles.borderRadius }}
@@ -156,7 +157,7 @@ const DraggableElement = ({ element, isEditing, onUpdate, onClick }: DraggableEl
           <video
             src={element.videoUrl}
             controls
-            className={`w-full h-full object-cover ${
+            className={`w-full h-full object-contain ${
               element.styles.animation ? `animate-${element.styles.animation}` : ''
             }`}
             style={{ borderRadius: element.styles.borderRadius }}

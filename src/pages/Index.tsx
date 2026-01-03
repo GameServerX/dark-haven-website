@@ -221,7 +221,7 @@ const Index = () => {
         onDeleteTab={handleDeleteTab}
       />
 
-      <main className="relative z-10 page-transition" style={{ paddingTop: '80px', minHeight: `${currentPageHeight}vh` }} key={activeSection}>
+      <main className="relative z-10 page-transition transition-all duration-700 ease-in-out" style={{ paddingTop: '80px', minHeight: `${currentPageHeight}vh` }} key={activeSection}>
         {activeSection === 'home' && <EditableHero isEditing={isEditing} />}
         {activeSection !== 'home' && <MainContent activeSection={activeSection} />}
         
