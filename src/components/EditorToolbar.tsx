@@ -1,15 +1,19 @@
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
+import { Slider } from '@/components/ui/slider';
+import { Label } from '@/components/ui/label';
 
 interface EditorToolbarProps {
   isEditing: boolean;
   onToggleEdit: () => void;
   onAddElement: (type: 'text' | 'button' | 'image' | 'video') => void;
   onSave: () => void;
+  pageHeight: number;
+  onPageHeightChange: (height: number) => void;
 }
 
-const EditorToolbar = ({ isEditing, onToggleEdit, onAddElement, onSave }: EditorToolbarProps) => {
+const EditorToolbar = ({ isEditing, onToggleEdit, onAddElement, onSave, pageHeight, onPageHeightChange }: EditorToolbarProps) => {
   const { toast } = useToast();
 
   const handleSave = () => {
@@ -25,6 +29,17 @@ const EditorToolbar = ({ isEditing, onToggleEdit, onAddElement, onSave }: Editor
   return (
     <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
       <div className="bg-card/95 backdrop-blur-lg border-2 border-primary/50 rounded-2xl shadow-2xl p-4 animate-fade-in">
+        <div className="mb-3 px-3 py-2 bg-background/50 rounded-lg">
+          <Label className="text-xs mb-2 block">Высота страницы: {pageHeight}vh</Label>
+          <Slider
+            value={[pageHeight]}
+            onValueChange={(value) => onPageHeightChange(value[0])}
+            min={100}
+            max={300}
+            step={10}
+            className="w-64"
+          />
+        </div>
         <div className="flex items-center space-x-2">
           <div className="px-3 py-2 bg-primary/20 rounded-lg">
             <span className="text-sm font-bold text-primary">Режим редактирования</span>

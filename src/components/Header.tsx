@@ -68,7 +68,7 @@ const Header = ({
           </div>
 
           <nav className="hidden lg:flex items-center max-w-2xl relative">
-            <div className="overflow-x-scroll scrollbar-hide flex items-center w-full" style={{ scrollBehavior: 'smooth' }} id="nav-scroll">
+            <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-primary/30 scrollbar-track-transparent flex items-center w-full" style={{ scrollBehavior: 'smooth' }} id="nav-scroll">
               <div className="flex items-center space-x-1 min-w-max px-2">
               {sections.map(section => (
                 <Button

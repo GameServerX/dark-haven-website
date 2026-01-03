@@ -30,6 +30,7 @@ const Index = () => {
   const [showTabManager, setShowTabManager] = useState(false);
   const [customTabs, setCustomTabs] = useState<CustomTab[]>([]);
   const [sidebarTabs, setSidebarTabs] = useState<CustomTab[]>([]);
+  const [pageHeights, setPageHeights] = useState<Record<string, number>>({});
 
   useEffect(() => {
     const savedUser = localStorage.getItem('darkHavenUser');
@@ -52,6 +53,11 @@ const Index = () => {
     const savedSidebarTabs = localStorage.getItem('darkHavenSidebarTabs');
     if (savedSidebarTabs) {
       setSidebarTabs(JSON.parse(savedSidebarTabs));
+    }
+
+    const savedPageHeights = localStorage.getItem('darkHavenPageHeights');
+    if (savedPageHeights) {
+      setPageHeights(JSON.parse(savedPageHeights));
     }
   }, []);
 
@@ -137,7 +143,17 @@ const Index = () => {
 
   const handleSaveElements = () => {
     localStorage.setItem('darkHavenElements', JSON.stringify(elements));
+    localStorage.setItem('darkHavenPageHeights', JSON.stringify(pageHeights));
   };
+
+  const handlePageHeightChange = (height: number) => {
+    setPageHeights({
+      ...pageHeights,
+      [activeSection]: height
+    });
+  };
+
+  const currentPageHeight = pageHeights[activeSection] || 100;
 
   const handleCreateTab = (name: string, icon: string, location: 'header' | 'sidebar') => {
     const newTab: CustomTab = {
@@ -203,7 +219,7 @@ const Index = () => {
         onDeleteTab={handleDeleteTab}
       />
 
-      <main className="relative z-10 min-h-screen page-transition" style={{ paddingTop: '80px' }} key={activeSection}>
+      <main className="relative z-10 page-transition" style={{ paddingTop: '80px', minHeight: `${currentPageHeight}vh` }} key={activeSection}>
         {activeSection === 'home' && <EditableHero isEditing={isEditing} />}
         {activeSection !== 'home' && <MainContent activeSection={activeSection} />}
         
@@ -246,6 +262,8 @@ const Index = () => {
             onToggleEdit={handleToggleEdit}
             onAddElement={handleAddElement}
             onSave={handleSaveElements}
+            pageHeight={currentPageHeight}
+            onPageHeightChange={handlePageHeightChange}
           />
 
           <ElementEditor
