@@ -79,7 +79,7 @@ const EditableHero = ({ isEditing }: { isEditing: boolean }) => {
         ) : (
           <>
             <div className="mb-8 animate-float">
-              <div className="inline-block p-8 rounded-full bg-primary/10 border-2 border-primary animate-pulse-glow">
+              <div className="">
                 <Icon name="Rocket" size={80} className="text-primary" />
               </div>
             </div>
