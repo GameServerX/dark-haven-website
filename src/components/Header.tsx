@@ -67,60 +67,62 @@ const Header = ({
             </div>
           </div>
 
-          <nav className="hidden lg:flex items-center space-x-1">
-            {sections.map(section => (
-              <Button
-                key={section.id}
-                variant={activeSection === section.id ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setActiveSection(section.id)}
-                className={`relative transition-all duration-300 ${
-                  activeSection === section.id 
-                    ? 'animate-pulse-glow' 
-                    : 'hover:text-primary'
-                }`}
-              >
-                <Icon name={section.icon as any} size={16} className="mr-2" />
-                {section.label}
-              </Button>
-            ))}
-
-            {customTabs.map(tab => (
-              <div key={tab.id} className="relative group inline-flex">
+          <nav className="hidden lg:flex items-center overflow-x-auto scrollbar-hide max-w-2xl">
+            <div className="flex items-center space-x-1 min-w-max px-2">
+              {sections.map(section => (
                 <Button
-                  variant={activeSection === tab.id ? 'default' : 'ghost'}
+                  key={section.id}
+                  variant={activeSection === section.id ? 'default' : 'ghost'}
                   size="sm"
-                  onClick={() => setActiveSection(tab.id)}
-                  className={`transition-all duration-300 ${
-                    activeSection === tab.id 
+                  onClick={() => setActiveSection(section.id)}
+                  className={`relative transition-all duration-300 flex-shrink-0 ${
+                    activeSection === section.id 
                       ? 'animate-pulse-glow' 
-                      : 'hover:text-secondary'
+                      : 'hover:text-primary'
                   }`}
                 >
-                  <Icon name={tab.icon as any} size={16} className="mr-2" />
-                  {tab.name}
+                  <Icon name={section.icon as any} size={16} className="mr-2" />
+                  {section.label}
                 </Button>
-                {isEditing && onDeleteTab && (
-                  <button
-                    onClick={() => onDeleteTab(tab.id)}
-                    className="absolute -top-1 -right-1 w-5 h-5 bg-destructive rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center hover:scale-110"
-                  >
-                    <Icon name="X" size={12} className="text-white" />
-                  </button>
-                )}
-              </div>
-            ))}
+              ))}
 
-            {isEditing && onAddTab && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onAddTab}
-                className="border-primary hover:bg-primary/10 animate-pulse"
-              >
-                <Icon name="Plus" size={16} />
-              </Button>
-            )}
+              {customTabs.map(tab => (
+                <div key={tab.id} className="relative group inline-flex flex-shrink-0">
+                  <Button
+                    variant={activeSection === tab.id ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setActiveSection(tab.id)}
+                    className={`transition-all duration-300 ${
+                      activeSection === tab.id 
+                        ? 'animate-pulse-glow' 
+                        : 'hover:text-secondary'
+                    }`}
+                  >
+                    <Icon name={tab.icon as any} size={16} className="mr-2" />
+                    {tab.name}
+                  </Button>
+                  {isEditing && onDeleteTab && (
+                    <button
+                      onClick={() => onDeleteTab(tab.id)}
+                      className="absolute -top-1 -right-1 w-5 h-5 bg-destructive rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center hover:scale-110"
+                    >
+                      <Icon name="X" size={12} className="text-white" />
+                    </button>
+                  )}
+                </div>
+              ))}
+
+              {isEditing && onAddTab && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={onAddTab}
+                  className="border-primary hover:bg-primary/10 animate-pulse flex-shrink-0"
+                >
+                  <Icon name="Plus" size={16} />
+                </Button>
+              )}
+            </div>
           </nav>
 
           <div className="flex items-center space-x-2">

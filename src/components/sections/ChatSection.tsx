@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import Icon from '@/components/ui/icon';
 
 interface Message {
@@ -11,6 +12,7 @@ interface Message {
   content: string;
   timestamp: string;
   chatId: string;
+  avatar?: string;
 }
 
 interface ChatRoom {
@@ -60,14 +62,15 @@ const ChatSection = () => {
   const handleSendMessage = () => {
     if (!newMessage.trim()) return;
 
-    const user = JSON.parse(localStorage.getItem('darkHavenUser') || '{"username":"Гость"}');
+    const user = JSON.parse(localStorage.getItem('darkHavenUser') || '{"username":"Гость","avatar":""}');
     
     const message: Message = {
       id: Date.now(),
       username: user.username,
       content: newMessage,
       timestamp: new Date().toISOString(),
-      chatId: activeChatId
+      chatId: activeChatId,
+      avatar: user.avatar || ''
     };
 
     const updatedMessages = [...messages, message];
@@ -188,9 +191,15 @@ const ChatSection = () => {
                   <div className="space-y-4">
                     {chatMessages.map((message) => (
                       <div key={message.id} className="flex items-start space-x-3">
-                        <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                          <Icon name="User" size={20} className="text-primary" />
-                        </div>
+                        <Avatar className="w-10 h-10">
+                          {message.avatar ? (
+                            <AvatarImage src={message.avatar} alt={message.username} />
+                          ) : (
+                            <AvatarFallback className="bg-primary/20 text-primary">
+                              {message.username[0].toUpperCase()}
+                            </AvatarFallback>
+                          )}
+                        </Avatar>
                         <div className="flex-1">
                           <div className="flex items-center space-x-2 mb-1">
                             <span className="font-semibold">{message.username}</span>

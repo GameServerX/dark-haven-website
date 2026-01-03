@@ -81,7 +81,7 @@ const AudioPlayer = () => {
   if (tracks.length === 0) return null;
 
   return (
-    <div className="fixed bottom-6 right-6 z-50">
+    <div className="fixed bottom-6 left-6 z-50">
       <div className={`bg-card/90 backdrop-blur-lg border border-primary/30 rounded-lg shadow-lg transition-all duration-300 ${
         isExpanded ? 'w-80 p-4' : 'w-14 h-14'
       }`}>

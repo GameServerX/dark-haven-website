@@ -176,7 +176,9 @@ const DraggableElement = ({ element, isEditing, onUpdate, onClick }: DraggableEl
       onClick={handleClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className={`select-none ${getHoverClass()}`}
+      className={`select-none ${getHoverClass()} ${
+        isEditing ? 'hover:outline hover:outline-2 hover:outline-cyan-500 hover:shadow-lg hover:shadow-cyan-500/50 cursor-move' : ''
+      }`}
     >
       {renderContent()}
     </div>
