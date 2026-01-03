@@ -84,7 +84,7 @@ const EditableHero = ({ isEditing }: { isEditing: boolean }) => {
               </div>
             </div>
 
-            <h1 className="text-5xl md:text-7xl font-bold mb-6 glow-cyan animate-fade-in">{content.title}</h1>
+            <h1 className="text-5xl md:text-7xl font-bold glow-cyan animate-fade-in my-[139px]">{content.title}</h1>
             <div className="text-xl md:text-2xl text-secondary mb-4 glow-purple">{content.subtitle}</div>
             <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto mb-8 leading-relaxed animate-fade-in">{content.description}</p>
 
