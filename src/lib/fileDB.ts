@@ -5,6 +5,15 @@ interface User {
   isAdmin: boolean;
 }
 
+interface MapData {
+  id: string;
+  name: string;
+  url: string;
+  thumbnail?: string;
+  description?: string;
+  createdAt: string;
+}
+
 interface DBSchema {
   user: User | null;
   elements: Record<string, PageElement[]>;
@@ -17,6 +26,7 @@ interface DBSchema {
     backgroundImage?: string;
     logoUrl?: string;
   };
+  maps: MapData[];
 }
 
 interface StorageFile {
@@ -47,7 +57,8 @@ class FileDatabase {
       heroData: {
         title: 'DARK HAVEN',
         subtitle: 'Исследуй космос музыки',
-      }
+      },
+      maps: []
     };
   }
 
@@ -86,6 +97,7 @@ class FileDatabase {
     if (oldData.sidebarTabs) newData.sidebarTabs = oldData.sidebarTabs;
     if (oldData.pageHeights) newData.pageHeights = oldData.pageHeights;
     if (oldData.heroData) newData.heroData = oldData.heroData;
+    if (oldData.maps) newData.maps = oldData.maps;
 
     return newData;
   }
@@ -252,6 +264,18 @@ class FileDatabase {
   getCurrentData(): DBSchema {
     return this.data;
   }
+
+  async getMaps(): Promise<MapData[]> {
+    await this.waitForLoad();
+    return this.data.maps || [];
+  }
+
+  async setMaps(maps: MapData[]): Promise<void> {
+    await this.waitForLoad();
+    this.data.maps = maps;
+    await this.saveToFile();
+  }
 }
 
 export const fileDB = new FileDatabase();
+export type { MapData };

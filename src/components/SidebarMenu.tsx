@@ -11,9 +11,10 @@ interface SidebarMenuProps {
   isEditing: boolean;
   onAddTab: () => void;
   onDeleteTab: (tabId: string) => void;
+  onMapViewerClick: () => void;
 }
 
-const SidebarMenu = ({ isOpen, onClose, onSelectTab, isEditing, onAddTab, onDeleteTab }: SidebarMenuProps) => {
+const SidebarMenu = ({ isOpen, onClose, onSelectTab, isEditing, onAddTab, onDeleteTab, onMapViewerClick }: SidebarMenuProps) => {
   const [sidebarTabs, setSidebarTabs] = useState<CustomTab[]>([]);
 
   useEffect(() => {
@@ -34,6 +35,22 @@ const SidebarMenu = ({ isOpen, onClose, onSelectTab, isEditing, onAddTab, onDele
         </SheetHeader>
 
         <div className="mt-8 space-y-2">
+          <Button
+            variant="ghost"
+            className="w-full justify-start hover:bg-primary/10 text-primary border border-primary/30"
+            onClick={() => {
+              onMapViewerClick();
+              onClose();
+            }}
+          >
+            <Icon name="Map" size={20} className="mr-3" />
+            Карты SS14
+          </Button>
+
+          {sidebarTabs.length > 0 && <div className="my-4 border-t border-border/50" />}
+        </div>
+
+        <div className="space-y-2">
           {sidebarTabs.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               {isEditing ? (

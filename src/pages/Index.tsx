@@ -14,6 +14,7 @@ import SidebarMenu from '@/components/SidebarMenu';
 import TabManager from '@/components/TabManager';
 import AIChat from '@/components/AIChat';
 import LogoEditor from '@/components/LogoEditor';
+import MapViewer from './MapViewer';
 import { PageElement, CustomTab } from '@/types/editor';
 import { localDB } from '@/lib/localDB';
 import { fileDB } from '@/lib/fileDB';
@@ -26,6 +27,7 @@ const Index = () => {
   const [showAdmin, setShowAdmin] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
   const [user, setUser] = useState<{ username: string; isAdmin: boolean } | null>(null);
+  const [showMapViewer, setShowMapViewer] = useState(false);
   
   const [isEditing, setIsEditing] = useState(false);
   const [elements, setElements] = useState<Record<string, PageElement[]>>({});
@@ -213,6 +215,10 @@ const Index = () => {
 
   const currentElements = elements[activeSection] || [];
 
+  if (showMapViewer) {
+    return <MapViewer isAdmin={user?.isAdmin || false} onBack={() => setShowMapViewer(false)} />;
+  }
+
   return (
     <div className="relative min-h-screen overflow-hidden bg-background" onClick={handlePageClick}>
       <SpaceBackground activeSection={activeSection} />
@@ -301,6 +307,7 @@ const Index = () => {
         isEditing={isEditing}
         onAddTab={() => setShowTabManager(true)}
         onDeleteTab={handleDeleteTab}
+        onMapViewerClick={() => setShowMapViewer(true)}
       />
 
       <TabManager
