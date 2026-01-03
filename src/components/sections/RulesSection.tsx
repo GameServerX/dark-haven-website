@@ -44,7 +44,8 @@ const RulesSection = () => {
   };
 
   const handleAdd = () => {
-    const newRule = { id: Date.now(), title: 'Новое правило', content: 'Описание правила' };
+    const maxId = rules.length > 0 ? Math.max(...rules.map(r => r.id)) : 0;
+    const newRule = { id: maxId + 1, title: 'Новое правило', content: 'Описание правила' };
     const updated = [...rules, newRule];
     setRules(updated);
     localStorage.setItem('darkHavenRules', JSON.stringify(updated));
@@ -92,7 +93,11 @@ const RulesSection = () => {
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div className="flex items-start space-x-3 flex-1">
-                  <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center text-accent font-bold">{rule.id}</div>
+                  {editingRule?.id === rule.id ? (
+                    <Input type="number" value={editingRule.id} onChange={(e) => setEditingRule({...editingRule, id: parseInt(e.target.value) || rule.id})} className="w-16" />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center text-accent font-bold">{rule.id}</div>
+                  )}
                   {editingRule?.id === rule.id ? (
                     <Input value={editingRule.title} onChange={(e) => setEditingRule({...editingRule, title: e.target.value})} className="font-bold" />
                   ) : (

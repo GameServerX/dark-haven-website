@@ -67,8 +67,9 @@ const Header = ({
             </div>
           </div>
 
-          <nav className="hidden lg:flex items-center overflow-x-auto scrollbar-hide max-w-2xl">
-            <div className="flex items-center space-x-1 min-w-max px-2">
+          <nav className="hidden lg:flex items-center max-w-2xl relative">
+            <div className="overflow-x-scroll scrollbar-hide flex items-center w-full" style={{ scrollBehavior: 'smooth' }} id="nav-scroll">
+              <div className="flex items-center space-x-1 min-w-max px-2">
               {sections.map(section => (
                 <Button
                   key={section.id}
@@ -122,6 +123,7 @@ const Header = ({
                   <Icon name="Plus" size={16} />
                 </Button>
               )}
+              </div>
             </div>
           </nav>
 

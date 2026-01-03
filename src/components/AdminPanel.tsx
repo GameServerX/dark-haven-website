@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
+import SiteSettings from './SiteSettings';
 
 interface AdminPanelProps {
   isOpen: boolean;
@@ -19,6 +20,7 @@ interface AdminPanelProps {
 
 const AdminPanel = ({ isOpen, onClose, onToggleEdit, isEditing }: AdminPanelProps) => {
   const { toast } = useToast();
+  const [showSiteSettings, setShowSiteSettings] = useState(false);
   const [newNewsTitle, setNewNewsTitle] = useState('');
   const [newNewsContent, setNewNewsContent] = useState('');
   const [newRuleTitle, setNewRuleTitle] = useState('');
@@ -89,7 +91,7 @@ const AdminPanel = ({ isOpen, onClose, onToggleEdit, isEditing }: AdminPanelProp
           </DialogTitle>
         </DialogHeader>
 
-        <div className="mb-6">
+        <div className="mb-6 space-y-4">
           <Card className="bg-accent/10 border-accent/30">
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
@@ -110,7 +112,26 @@ const AdminPanel = ({ isOpen, onClose, onToggleEdit, isEditing }: AdminPanelProp
               </div>
             </CardContent>
           </Card>
+
+          <Card className="bg-primary/10 border-primary/30">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-semibold mb-1">Настройки сайта</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Логотип, фоны, музыка, высота страниц
+                  </p>
+                </div>
+                <Button onClick={() => setShowSiteSettings(true)} variant="outline">
+                  <Icon name="Wrench" size={16} className="mr-2" />
+                  Открыть
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
+
+        {showSiteSettings && <SiteSettings onClose={() => setShowSiteSettings(false)} />}
 
         <Tabs defaultValue="content" className="w-full">
           <TabsList className="grid w-full grid-cols-3">

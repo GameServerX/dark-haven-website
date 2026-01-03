@@ -243,9 +243,14 @@ const ElementEditor = ({ element, onUpdate, onDelete, onClose }: ElementEditorPr
                   value={[localElement.styles.borderRadius || 0]}
                   onValueChange={(value) => updateStyles({ borderRadius: value[0] })}
                   min={0}
-                  max={50}
+                  max={999}
                   step={1}
                 />
+                <div className="flex gap-2 mt-2">
+                  <Button size="sm" variant="outline" onClick={() => updateStyles({ borderRadius: 0 })}>Квадрат</Button>
+                  <Button size="sm" variant="outline" onClick={() => updateStyles({ borderRadius: 12 })}>Округлый</Button>
+                  <Button size="sm" variant="outline" onClick={() => updateStyles({ borderRadius: 999 })}>Круг</Button>
+                </div>
               </div>
 
               <div>
