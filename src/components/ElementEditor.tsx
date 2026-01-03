@@ -119,43 +119,21 @@ const ElementEditor = ({ element, onUpdate, onDelete, onClose }: ElementEditorPr
               )}
 
               {localElement.type === 'image' && (
-                <>
-                  <FileUploader
-                    label="Загрузить изображение"
-                    accept="image/*"
-                    onUpload={(url) => updateElement({ imageUrl: url })}
-                    currentUrl={localElement.imageUrl}
-                  />
-                  <div>
-                    <Label htmlFor="image-url">Или введите URL</Label>
-                    <Input
-                      id="image-url"
-                      value={localElement.imageUrl || ''}
-                      onChange={(e) => updateElement({ imageUrl: e.target.value })}
-                      placeholder="https://example.com/image.jpg"
-                    />
-                  </div>
-                </>
+                <FileUploader
+                  label="Загрузить изображение"
+                  accept="image/*"
+                  onUpload={(url) => updateElement({ imageUrl: url })}
+                  currentUrl={localElement.imageUrl}
+                />
               )}
 
               {localElement.type === 'video' && (
-                <>
-                  <FileUploader
-                    label="Загрузить видео"
-                    accept="video/*"
-                    onUpload={(url) => updateElement({ videoUrl: url })}
-                    currentUrl={localElement.videoUrl}
-                  />
-                  <div>
-                    <Label htmlFor="video-url">Или введите URL</Label>
-                    <Input
-                      id="video-url"
-                      value={localElement.videoUrl || ''}
-                      onChange={(e) => updateElement({ videoUrl: e.target.value })}
-                      placeholder="https://example.com/video.mp4"
-                    />
-                  </div>
-                </>
+                <FileUploader
+                  label="Загрузить видео"
+                  accept="video/*"
+                  onUpload={(url) => updateElement({ videoUrl: url })}
+                  currentUrl={localElement.videoUrl}
+                />
               )}
 
               <div className="space-y-3">

@@ -35,7 +35,7 @@ const EditorToolbar = ({ isEditing, onToggleEdit, onAddElement, onSave, pageHeig
             value={[pageHeight]}
             onValueChange={(value) => onPageHeightChange(value[0])}
             min={100}
-            max={300}
+            max={1000}
             step={10}
             className="w-64"
           />

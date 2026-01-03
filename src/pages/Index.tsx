@@ -13,6 +13,7 @@ import DraggableElement from '@/components/DraggableElement';
 import SidebarMenu from '@/components/SidebarMenu';
 import TabManager from '@/components/TabManager';
 import AIChat from '@/components/AIChat';
+import LogoEditor from '@/components/LogoEditor';
 import { PageElement, CustomTab } from '@/types/editor';
 
 const Index = () => {
@@ -202,6 +203,7 @@ const Index = () => {
     <div className="relative min-h-screen overflow-hidden bg-background" onClick={handlePageClick}>
       <SpaceBackground activeSection={activeSection} />
       <AudioPlayer />
+      <LogoEditor isEditing={isEditing} />
       
       <Header 
         activeSection={activeSection}

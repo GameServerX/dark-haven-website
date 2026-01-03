@@ -24,32 +24,43 @@ const FileUploader = ({ label, accept, onUpload, currentUrl }: FileUploaderProps
 
     try {
       const reader = new FileReader();
-      reader.onload = async () => {
-        const base64 = reader.result as string;
-
-        const response = await fetch('https://functions.poehali.dev/955752de-69c7-412d-af62-a1201c69a014', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            file: base64,
-            fileName: file.name,
-            fileType: file.type
-          })
+      reader.onload = () => {
+        const dataUrl = reader.result as string;
+        
+        // Сохраняем файл в localStorage
+        const fileId = `file_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        const fileData = {
+          id: fileId,
+          name: file.name,
+          type: file.type,
+          size: file.size,
+          data: dataUrl,
+          uploadedAt: new Date().toISOString()
+        };
+        
+        // Получаем существующие файлы
+        const existingFiles = localStorage.getItem('darkHaven_uploadedFiles');
+        const files = existingFiles ? JSON.parse(existingFiles) : [];
+        files.push(fileData);
+        
+        // Сохраняем обновленный список
+        localStorage.setItem('darkHaven_uploadedFiles', JSON.stringify(files));
+        
+        onUpload(dataUrl);
+        toast({
+          title: 'Успешно!',
+          description: 'Файл загружен'
         });
+        setUploading(false);
+      };
 
-        const result = await response.json();
-
-        if (result.success) {
-          onUpload(result.url);
-          toast({
-            title: 'Успешно!',
-            description: 'Файл загружен на сервер'
-          });
-        } else {
-          throw new Error(result.error || 'Upload failed');
-        }
+      reader.onerror = () => {
+        toast({
+          title: 'Ошибка загрузки',
+          description: 'Не удалось прочитать файл',
+          variant: 'destructive'
+        });
+        setUploading(false);
       };
 
       reader.readAsDataURL(file);
@@ -59,7 +70,6 @@ const FileUploader = ({ label, accept, onUpload, currentUrl }: FileUploaderProps
         description: String(error),
         variant: 'destructive'
       });
-    } finally {
       setUploading(false);
     }
   };

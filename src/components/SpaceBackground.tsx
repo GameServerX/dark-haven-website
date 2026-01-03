@@ -7,13 +7,13 @@ interface SpaceBackgroundProps {
 const SpaceBackground = ({ activeSection = 'home' }: SpaceBackgroundProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [scrollY, setScrollY] = useState(0);
-  const [pageBackground, setPageBackground] = useState<any>(null);
+  const [config, setConfig] = useState<any>(null);
 
   useEffect(() => {
-    const savedBackgrounds = localStorage.getItem('darkHavenPageBackgrounds');
-    if (savedBackgrounds) {
-      const backgrounds = JSON.parse(savedBackgrounds);
-      setPageBackground(backgrounds[activeSection]);
+    const savedConfig = localStorage.getItem('darkHavenSiteConfig');
+    if (savedConfig) {
+      const parsed = JSON.parse(savedConfig);
+      setConfig(parsed);
     }
   }, [activeSection]);
 
@@ -80,43 +80,51 @@ const SpaceBackground = ({ activeSection = 'home' }: SpaceBackgroundProps) => {
     return () => window.removeEventListener('resize', handleResize);
   }, [scrollY]);
 
-  const getBackgroundStyle = () => {
-    if (pageBackground?.type === 'video' && pageBackground.url) {
-      return {};
-    }
-    
-    if (pageBackground?.type === 'static' && pageBackground.url) {
-      return {
-        backgroundImage: `url(${pageBackground.url})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundAttachment: pageBackground.type === 'parallax' ? 'fixed' : 'scroll'
-      };
-    }
-
-    return {
-      background: 'radial-gradient(ellipse at center, #1a1a2e 0%, #0a0a0f 100%)'
-    };
-  };
+  const background = config?.backgrounds?.[activeSection];
+  const hasParallax = background?.parallax === true;
 
   return (
     <>
-      {pageBackground?.type === 'video' && pageBackground.url ? (
-        <video
-          className="fixed inset-0 z-0 w-full h-full object-cover"
-          autoPlay
-          loop
-          muted
-          playsInline
-        >
-          <source src={pageBackground.url} type="video/mp4" />
-        </video>
+      {background?.type === 'video' && background.url ? (
+        <div className="fixed inset-0 z-0 overflow-hidden">
+          <video
+            className="absolute w-full h-full object-cover"
+            style={{
+              transform: hasParallax ? `translateY(${scrollY * 0.5}px)` : 'none',
+              transition: 'transform 0.1s ease-out'
+            }}
+            autoPlay
+            loop
+            muted
+            playsInline
+          >
+            <source src={background.url} type="video/mp4" />
+          </video>
+        </div>
+      ) : background?.type === 'image' && background.url ? (
+        <div
+          className="fixed inset-0 z-0"
+          style={{
+            backgroundImage: `url(${background.url})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            transform: hasParallax ? `translateY(${scrollY * 0.5}px)` : 'none',
+            transition: hasParallax ? 'transform 0.1s ease-out' : 'none',
+            willChange: hasParallax ? 'transform' : 'auto'
+          }}
+        />
       ) : (
         <canvas
           ref={canvasRef}
           className="fixed inset-0 z-0"
-          style={getBackgroundStyle()}
+          style={{
+            background: 'radial-gradient(ellipse at center, #1a1a2e 0%, #0a0a0f 100%)'
+          }}
         />
+      )}
+      {(background?.type === 'image' || background?.type === 'video') && (
+        <div className="fixed inset-0 z-0 bg-black/40 pointer-events-none" />
       )}
     </>
   );

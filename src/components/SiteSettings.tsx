@@ -1,11 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Slider } from '@/components/ui/slider';
+import { Label } from '@/components/ui/label';
 import Icon from '@/components/ui/icon';
+import { useToast } from '@/hooks/use-toast';
 
 interface SiteConfig {
   logoUrl: string;
@@ -16,6 +18,7 @@ interface SiteConfig {
 }
 
 const SiteSettings = ({ onClose }: { onClose: () => void }) => {
+  const { toast } = useToast();
   const [config, setConfig] = useState<SiteConfig>({
     logoUrl: '',
     logoType: 'text',
@@ -26,7 +29,9 @@ const SiteSettings = ({ onClose }: { onClose: () => void }) => {
 
   const [musicTracks, setMusicTracks] = useState<any[]>([]);
   const [newTrackTitle, setNewTrackTitle] = useState('');
-  const [newTrackUrl, setNewTrackUrl] = useState('');
+  const logoFileRef = useRef<HTMLInputElement>(null);
+  const bgFileRefs = useRef<Record<string, HTMLInputElement | null>>({});
+  const musicFileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const saved = localStorage.getItem('darkHavenSiteConfig');
@@ -39,17 +44,61 @@ const SiteSettings = ({ onClose }: { onClose: () => void }) => {
   const handleSave = () => {
     localStorage.setItem('darkHavenSiteConfig', JSON.stringify(config));
     localStorage.setItem('darkHavenTracks', JSON.stringify(musicTracks));
+    toast({ title: 'Сохранено!', description: 'Настройки применены' });
     onClose();
     window.location.reload();
   };
 
-  const handleAddTrack = () => {
-    if (!newTrackTitle || !newTrackUrl) return;
-    const newTrack = { id: Date.now().toString(), title: newTrackTitle, url: newTrackUrl };
-    const updated = [...musicTracks, newTrack];
-    setMusicTracks(updated);
-    setNewTrackTitle('');
-    setNewTrackUrl('');
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result as string;
+      setConfig({ ...config, logoUrl: dataUrl });
+      toast({ title: 'Загружено!', description: 'Логотип обновлен' });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleBackgroundUpload = (page: string, file: File) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result as string;
+      setConfig({
+        ...config,
+        backgrounds: {
+          ...config.backgrounds,
+          [page]: { ...config.backgrounds[page], url: dataUrl }
+        }
+      });
+      toast({ title: 'Загружено!', description: `Фон для ${page} обновлен` });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleMusicUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !newTrackTitle) {
+      toast({ title: 'Ошибка', description: 'Укажите название трека', variant: 'destructive' });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result as string;
+      const newTrack = { 
+        id: Date.now().toString(), 
+        title: newTrackTitle, 
+        url: dataUrl 
+      };
+      const updated = [...musicTracks, newTrack];
+      setMusicTracks(updated);
+      setNewTrackTitle('');
+      toast({ title: 'Добавлено!', description: `Трек "${newTrackTitle}" загружен` });
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleDeleteTrack = (id: string) => {
@@ -78,7 +127,7 @@ const SiteSettings = ({ onClose }: { onClose: () => void }) => {
 
             <TabsContent value="logo" className="space-y-4">
               <div>
-                <label className="text-sm mb-2 block">Тип логотипа</label>
+                <Label className="mb-2 block">Тип логотипа</Label>
                 <Select value={config.logoType} onValueChange={(val: any) => setConfig({...config, logoType: val})}>
                   <SelectTrigger>
                     <SelectValue />
@@ -92,16 +141,50 @@ const SiteSettings = ({ onClose }: { onClose: () => void }) => {
               </div>
 
               {config.logoType === 'text' && (
-                <Input placeholder="Текст логотипа" value={config.logoText} onChange={(e) => setConfig({...config, logoText: e.target.value})} />
+                <div>
+                  <Label className="mb-2 block">Текст логотипа</Label>
+                  <Input 
+                    placeholder="DARK HAVEN" 
+                    value={config.logoText} 
+                    onChange={(e) => setConfig({...config, logoText: e.target.value})} 
+                  />
+                </div>
               )}
 
               {(config.logoType === 'image' || config.logoType === 'video') && (
-                <Input placeholder="URL логотипа" value={config.logoUrl} onChange={(e) => setConfig({...config, logoUrl: e.target.value})} />
+                <div className="space-y-2">
+                  <Label>Загрузить {config.logoType === 'image' ? 'изображение' : 'видео'}</Label>
+                  <input
+                    ref={logoFileRef}
+                    type="file"
+                    accept={config.logoType === 'image' ? 'image/*' : 'video/*'}
+                    onChange={handleLogoUpload}
+                    className="hidden"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => logoFileRef.current?.click()}
+                    className="w-full"
+                  >
+                    <Icon name="Upload" size={16} className="mr-2" />
+                    Выбрать файл
+                  </Button>
+                  {config.logoUrl && (
+                    <div className="mt-2 p-2 border border-border rounded">
+                      {config.logoType === 'image' ? (
+                        <img src={config.logoUrl} alt="Logo preview" className="max-h-32 mx-auto" />
+                      ) : (
+                        <video src={config.logoUrl} className="max-h-32 mx-auto" controls />
+                      )}
+                    </div>
+                  )}
+                </div>
               )}
             </TabsContent>
 
             <TabsContent value="backgrounds" className="space-y-4">
-              <p className="text-sm text-muted-foreground">Установите фон для каждой вкладки</p>
+              <p className="text-sm text-muted-foreground">Установите фон для каждой вкладки с параллакс эффектом</p>
               {['home', 'news', 'development', 'wiki', 'rules', 'chat', 'profile'].map(page => (
                 <div key={page} className="space-y-2 p-4 border border-border rounded-lg">
                   <h4 className="font-semibold capitalize">{page}</h4>
@@ -123,14 +206,28 @@ const SiteSettings = ({ onClose }: { onClose: () => void }) => {
                   </Select>
                   {config.backgrounds[page]?.type !== 'none' && (
                     <>
-                      <Input 
-                        placeholder="URL" 
-                        value={config.backgrounds[page]?.url || ''} 
-                        onChange={(e) => setConfig({
-                          ...config, 
-                          backgrounds: {...config.backgrounds, [page]: {...config.backgrounds[page], url: e.target.value}}
-                        })}
+                      <input
+                        ref={(el) => (bgFileRefs.current[page] = el)}
+                        type="file"
+                        accept={config.backgrounds[page]?.type === 'image' ? 'image/*' : 'video/*'}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleBackgroundUpload(page, file);
+                        }}
+                        className="hidden"
                       />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => bgFileRefs.current[page]?.click()}
+                        className="w-full"
+                      >
+                        <Icon name="Upload" size={16} className="mr-2" />
+                        Загрузить {config.backgrounds[page]?.type === 'image' ? 'изображение' : 'видео'}
+                      </Button>
+                      {config.backgrounds[page]?.url && (
+                        <div className="text-xs text-green-500">✓ Файл загружен</div>
+                      )}
                       <label className="flex items-center space-x-2">
                         <input 
                           type="checkbox" 
@@ -140,7 +237,7 @@ const SiteSettings = ({ onClose }: { onClose: () => void }) => {
                             backgrounds: {...config.backgrounds, [page]: {...config.backgrounds[page], parallax: e.target.checked}}
                           })}
                         />
-                        <span className="text-sm">Параллакс эффект</span>
+                        <span className="text-sm">Параллакс эффект (плавная прокрутка)</span>
                       </label>
                     </>
                   )}
@@ -150,20 +247,35 @@ const SiteSettings = ({ onClose }: { onClose: () => void }) => {
 
             <TabsContent value="music" className="space-y-4">
               <div className="space-y-2">
-                <Input placeholder="Название трека" value={newTrackTitle} onChange={(e) => setNewTrackTitle(e.target.value)} />
-                <Input placeholder="URL трека" value={newTrackUrl} onChange={(e) => setNewTrackUrl(e.target.value)} />
-                <Button onClick={handleAddTrack} className="w-full">
-                  <Icon name="Plus" size={16} className="mr-2" />
-                  Добавить трек
+                <Label>Название трека</Label>
+                <Input 
+                  placeholder="Мой трек" 
+                  value={newTrackTitle} 
+                  onChange={(e) => setNewTrackTitle(e.target.value)} 
+                />
+                <input
+                  ref={musicFileRef}
+                  type="file"
+                  accept="audio/*"
+                  onChange={handleMusicUpload}
+                  className="hidden"
+                />
+                <Button 
+                  onClick={() => musicFileRef.current?.click()} 
+                  className="w-full"
+                  disabled={!newTrackTitle}
+                >
+                  <Icon name="Upload" size={16} className="mr-2" />
+                  Загрузить аудио файл
                 </Button>
               </div>
 
               <div className="space-y-2">
                 {musicTracks.map(track => (
                   <div key={track.id} className="flex items-center justify-between p-3 border border-border rounded-lg">
-                    <div>
+                    <div className="flex-1 truncate">
                       <p className="font-semibold">{track.title}</p>
-                      <p className="text-xs text-muted-foreground truncate max-w-md">{track.url}</p>
+                      <p className="text-xs text-muted-foreground">Аудио файл загружен</p>
                     </div>
                     <Button size="sm" variant="destructive" onClick={() => handleDeleteTrack(track.id)}>
                       <Icon name="Trash2" size={14} />
@@ -174,28 +286,31 @@ const SiteSettings = ({ onClose }: { onClose: () => void }) => {
             </TabsContent>
 
             <TabsContent value="pages" className="space-y-4">
-              <p className="text-sm text-muted-foreground">Установите минимальную высоту для каждой страницы</p>
+              <p className="text-sm text-muted-foreground">Минимальная высота каждой страницы (100-1000vh)</p>
               {['home', 'news', 'development', 'wiki', 'rules', 'chat', 'profile'].map(page => (
-                <div key={page} className="flex items-center space-x-4">
-                  <span className="w-32 capitalize">{page}</span>
-                  <Input 
-                    type="number" 
-                    placeholder="Высота (vh)" 
-                    value={config.pageHeights[page] || 100}
-                    onChange={(e) => setConfig({
+                <div key={page} className="space-y-2">
+                  <Label className="capitalize">{page}: {config.pageHeights[page] || 100}vh</Label>
+                  <Slider
+                    value={[config.pageHeights[page] || 100]}
+                    onValueChange={(val) => setConfig({
                       ...config,
-                      pageHeights: {...config.pageHeights, [page]: parseInt(e.target.value) || 100}
+                      pageHeights: {...config.pageHeights, [page]: val[0]}
                     })}
+                    min={100}
+                    max={1000}
+                    step={10}
                   />
-                  <span className="text-sm text-muted-foreground">vh</span>
                 </div>
               ))}
             </TabsContent>
           </Tabs>
 
-          <div className="mt-6 flex gap-2">
-            <Button onClick={handleSave} className="flex-1">Сохранить</Button>
-            <Button onClick={onClose} variant="outline" className="flex-1">Отмена</Button>
+          <div className="mt-6 flex justify-end space-x-2">
+            <Button variant="outline" onClick={onClose}>Отмена</Button>
+            <Button onClick={handleSave} className="bg-primary hover:bg-primary/90">
+              <Icon name="Save" size={16} className="mr-2" />
+              Сохранить
+            </Button>
           </div>
         </CardContent>
       </Card>
