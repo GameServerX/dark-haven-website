@@ -15,6 +15,7 @@ import TabManager from '@/components/TabManager';
 import AIChat from '@/components/AIChat';
 import LogoEditor from '@/components/LogoEditor';
 import { PageElement, CustomTab } from '@/types/editor';
+import { localDB } from '@/lib/localDB';
 
 const Index = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -34,31 +35,30 @@ const Index = () => {
   const [pageHeights, setPageHeights] = useState<Record<string, number>>({});
 
   useEffect(() => {
-    const savedUser = localStorage.getItem('darkHavenUser');
+    const savedUser = localDB.getUser();
     if (savedUser) {
-      const userData = JSON.parse(savedUser);
-      setUser(userData);
+      setUser(savedUser);
       setIsAuthenticated(true);
     }
 
-    const savedElements = localStorage.getItem('darkHavenElements');
+    const savedElements = localDB.getElements();
     if (savedElements) {
-      setElements(JSON.parse(savedElements));
+      setElements(savedElements as Record<string, PageElement[]>);
     }
 
-    const savedCustomTabs = localStorage.getItem('darkHavenCustomTabs');
+    const savedCustomTabs = localDB.getCustomTabs();
     if (savedCustomTabs) {
-      setCustomTabs(JSON.parse(savedCustomTabs));
+      setCustomTabs(savedCustomTabs);
     }
 
-    const savedSidebarTabs = localStorage.getItem('darkHavenSidebarTabs');
+    const savedSidebarTabs = localDB.getSidebarTabs();
     if (savedSidebarTabs) {
-      setSidebarTabs(JSON.parse(savedSidebarTabs));
+      setSidebarTabs(savedSidebarTabs);
     }
 
-    const savedPageHeights = localStorage.getItem('darkHavenPageHeights');
+    const savedPageHeights = localDB.getPageHeights();
     if (savedPageHeights) {
-      setPageHeights(JSON.parse(savedPageHeights));
+      setPageHeights(savedPageHeights);
     }
   }, []);
 
@@ -69,14 +69,14 @@ const Index = () => {
 
   const handleCaptchaSuccess = () => {
     const userData = { username: user?.username || 'Guest', isAdmin: user?.isAdmin || false };
-    localStorage.setItem('darkHavenUser', JSON.stringify(userData));
+    localDB.setUser(userData);
     setIsAuthenticated(true);
     setShowCaptcha(false);
     setShowAuth(false);
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('darkHavenUser');
+    localDB.setUser(null);
     setUser(null);
     setIsAuthenticated(false);
     setIsEditing(false);
@@ -143,8 +143,8 @@ const Index = () => {
   };
 
   const handleSaveElements = () => {
-    localStorage.setItem('darkHavenElements', JSON.stringify(elements));
-    localStorage.setItem('darkHavenPageHeights', JSON.stringify(pageHeights));
+    localDB.updateAllElements(elements);
+    localDB.updateAllPageHeights(pageHeights);
   };
 
   const handlePageHeightChange = (height: number) => {
