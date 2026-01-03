@@ -58,9 +58,7 @@ const Header = ({
             </Button>
 
             <div className="flex flex-col">
-              <div className="text-3xl font-bold glow-cyan">
-                DARK HAVEN
-              </div>
+              <div className="text-3xl font-bold glow-cyan mx-0 my-0 rounded-full">DARK  HAVEN </div>
               <div className="hidden md:block text-xs text-muted-foreground">
                 Space Station 14
               </div>
